@@ -1,0 +1,19 @@
+{
+  "name": "hyper-fun",
+  "version": "0.0.1",
+  "description": "Fun way to build app with hyperscript and observable",
+  "main": "index.js",
+  "repository": "https://github.com/syarul/hyper-fun",
+  "author": "syarul <hottincup@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "app": "^0.1.0",
+    "hyperscript": "^2.0.2",
+    "observable": "https://github.com/syarul/observable",
+    "todomvc-app-css": "^2.3.0",
+    "todomvc-common": "^1.0.5"
+  },
+  "scripts": {
+    "start": "cp todoMVC/learn.json dist/learn.json && parcel todoMVC/index.html"
+  }
+}
