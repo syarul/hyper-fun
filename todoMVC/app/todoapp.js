@@ -12,7 +12,9 @@ import { SHOW_ALL, SHOW_ACTIVE, SHOW_COMPLETE } from './utils'
 o.useHook(true)
 
 const {
-    transform
+    transform,
+    bind2,
+    input
 } = o
 
 // for the sake of clarity purpose and
@@ -36,13 +38,29 @@ export const app = () => {
     // resolve the observable directly or using binding, transform, 
     // compute etc++
     const [todos, setTodos] = useState(state().todos)
+    
+
+    let __toggler = h('input.toggle-all#toggle-all',
+        {
+            type: 'checkbox',
+            // checked: transform(state, ({ isChecked }) => !isChecked),
+            onclick: () => dispatch({ action: 'completeAll' })
+        }
+    )
+
+    let toggler = h('input', { type: 'checkbox' })
+    
+    let togglerHandler = input(toggler, 'checked', 'change')
 
     // assigning function to an observable. This
     // pretty much how useEffect/useLayoutEffect
     // behave instead it attach directly to the
     // observable, and guess what it's anagram for
     // observable all along ironically
-    state(({ todos }) => setTodos(todos))
+    state(({ todos }) => {
+        setTodos(todos)
+        console.log(todos)
+    })
 
     const useTodos = () => {
 
@@ -61,16 +79,26 @@ export const app = () => {
         return t
     }
 
+    var _i = h('input', { type: 'checkbox' })
+    var _j = h('input', { type: 'checkbox' })
+    var i = o.input(_i, 'checked', 'change')
+    var j = o.input(_j, 'checked', 'change')
+
+    i(Math.random() < 0.5)
+
+    // o.bind2(o.not(i), j)
+
+    bind2(o.not(togglerHandler), i)
+
     return h('section.todoapp',
         header({ dispatch }),
         h('section.main',
-            h('input.toggle-all#toggle-all',
-                {
-                    type: 'checkbox',
-                    checked: state().isChecked,
-                    onclick: () => dispatch({ action: 'completeAll' })
+            {
+                style: {
+                    display: transform(todos, t => t.length ? 'block' : 'none')
                 }
-            ),
+            },
+            toggler,
             h('label ', { 
                 attrs: { for: 'toggle-all' } 
             }, 'Mark all as complete'),
@@ -83,6 +111,7 @@ export const app = () => {
             clearCompleted: () => dispatch({ action: 'clearComplete' }),
             filter,
             dispatchFilter
-        }) : '')
+        }) : ''),
+        h('div', _i, _j)
     )
 }
