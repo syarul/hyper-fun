@@ -7,7 +7,8 @@
   "author": "syarul <hottincup@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "hyperscript": "^2.0.2",
+    "hyperscript": "https://github.com/syarul/hyperscript",
+    "morphdom": "^2.5.12",
     "observable": "https://github.com/syarul/observable",
     "todomvc-app-css": "^2.3.0",
     "todomvc-common": "^1.0.5"

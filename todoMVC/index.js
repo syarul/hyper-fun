@@ -1,21 +1,32 @@
 import h from 'hyperscript'
-import { app } from './app/todoapp'
+import patch from './morph'
+import { app, lifecycle } from './app/todoapp'
 
 const root = document.getElementById('app')
 
+const [f] = lifecycle
+console.log(f)
+
+// f(() => {
+//     console.log(3) 
+// })
+
+// const [frag, lifecycle] = app()
+
+// export const lifecycle = () => {
+//     console.log(1)
+//     console.log(app().cloneNode(true))
+//     patch(root, app())
+// }
+
+f(() => {
+    console.log(1)
+    console.log(app().cloneNode(true))
+    patch(root, app())
+})
+
+// const node = app()
+
 // currently just rerender everything which is not efficient
 // should go thorough diffing/patching on subsequent update
-root.appendChild(app())
-
-const footer = h('footer.info',
-    h('p', 'Double-click to edit a todo'),
-    h('p', 'Created by ',
-        h('a', { href: 'https://github.com/syarul' }, 'Shahrul Nizam Selamat')
-    ),
-    h('p', 'Part of ',
-        h('a', { href: 'http://todomvc.com' }, 'TodoMVC')
-    )
-)
-
-// footer is static so don't bother diffing this
-root.appendChild(footer)
+// root.appendChild(node)

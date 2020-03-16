@@ -13,7 +13,8 @@ o.useHook(true)
 
 const {
     transform,
-    input
+    input,
+    signal
 } = o
 
 // for the sake of clarity purpose and
@@ -26,17 +27,34 @@ const {
 const useReducer = o
 const useState   = o
 
+export const lifecycle = o()
+
 export const app = () => {
 
     const [state, dispatch] = useReducer(todoReducer, initialTodo)
 
     const [filter, dispatchFilter] = useReducer(filterReducer, initialFilter)
 
-    const [showFilter, setShowFilter] = useState(SHOW_ALL)
+    // signal observable does not get trigged
+    // when new value is the same as old value
+    const showFilter = signal(SHOW_ALL)
+
+    // observe when filter change / todos change
+    const [run, setRun] = useState()
+
+    const [f] = lifecycle
+
+    run(() => {
+        f(true)
+    })
+
+    showFilter(v =>{
+        setRun(true)
+    })
 
     filter(filter => {
         const { name = SHOW_ALL } = filter.find(({ selected }) => selected) || {}
-        setShowFilter(name) 
+        showFilter(name) 
     })
 
     // when accessing an observable value pass closing bracket '()'
@@ -54,6 +72,13 @@ export const app = () => {
     
     // bind the toggle all to a handler observable
     const handler = input(toggleAll, 'checked', 'change')
+    
+    // observe the length of todos
+    const len = signal(state().todos.length > 0)
+
+    len(l => {
+        console.log(`length has change ${l}`)
+    })
 
     // assigning function to an observable. This
     // pretty much how useEffect/useLayoutEffect
@@ -64,6 +89,10 @@ export const app = () => {
         setTodos(state.todos)
         // if all todos is checked, toggle it
         handler(state.isChecked)
+
+        len(state.todos.length > 0)
+
+        setRun(true)
     })
 
     const useTodos = (name, todos) =>
@@ -77,15 +106,20 @@ export const app = () => {
             }
         })
 
-    return h('section.todoapp',
+    const frag = document.createDocumentFragment()
+
+    const node = h('section.todoapp',
         header({ dispatch }),
-        transform(todos, todos => todos.length ? h('section.main',
+        transform(len, len => len ? h('section.main',
             toggleAll,
             h('label ', { 
                 attrs: { for: 'toggle-all' } 
             }, 'Mark all as complete'),
-            transform(showFilter, show => todo({ todos: useTodos(show, todos), dispatch }))
+            transform(run, () =>
+                todo({ todos: useTodos(showFilter(), todos()), dispatch })
+            )
         ): null),
+
         transform(state, ({ todos, count, plural, clearToggle }) => todoFooter({
             show: todos.length,
             count,
@@ -97,4 +131,21 @@ export const app = () => {
             clearCompleted: () => dispatch({ action: 'clearComplete' })
         }))
     )
+
+    const footer = h('footer.info',
+        h('p', 'Double-click to edit a todo'),
+        h('p', 'Created by ',
+            h('a', { href: 'https://github.com/syarul' }, 'Shahrul Nizam Selamat')
+        ),
+        h('p', 'Part of ',
+            h('a', { href: 'http://todomvc.com' }, 'TodoMVC')
+        )
+    )
+
+    // footer is static so don't bother diffing this
+    // root.appendChild(footer)
+    frag.appendChild(node)
+    frag.appendChild(footer)
+
+    return frag
 }
