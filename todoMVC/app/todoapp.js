@@ -95,6 +95,6 @@ export const app = () => {
             filter,
             dispatchFilter,
             clearCompleted: () => dispatch({ action: 'clearComplete' })
-        })),
+        }))
     )
 }
