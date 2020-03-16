@@ -6,7 +6,7 @@ const {
     transform
 } = o
 
-export const todoFooter = ({ show, count, plural, clearToggle, filter, dispatchFilter, clearCompleted }) => {
+export const todoFooter = ({ show, count, plural, clearToggle, showFilter, filter, dispatchFilter, clearCompleted }) => {
 
     return h('footer.footer',
         {
@@ -18,7 +18,7 @@ export const todoFooter = ({ show, count, plural, clearToggle, filter, dispatchF
             h('strong', count),
             ` item${plural} left`
         ),
-        filterc({ filter, dispatchFilter }),
+        transform(showFilter, () => filterc({ filter, dispatchFilter })),
         clearToggle ? h('button.clear-completed',
            {
                onclick: clearCompleted,

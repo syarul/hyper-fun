@@ -1,6 +1,6 @@
 import h from 'hyperscript'
 import o from 'observable'
-import { ENTER_KEY } from './utils'
+import { ENTER_KEY, ESC_KEY } from './utils'
 
 const useState = o
 
@@ -18,6 +18,14 @@ export const todoItem = (item) => {
                 todo: {
                     ...item,
                     todo: value(),
+                    editing: false
+                }
+            })
+        } else if (e.keyCode === ESC_KEY) {
+            dispatch({
+                action: 'edit',
+                todo: {
+                    ...item,
                     editing: false
                 }
             })
@@ -55,6 +63,16 @@ export const todoItem = (item) => {
         dispatch({ action: 'remove', todo: item })
     }
 
+    const [isEditing] = useState(editing)
+
+    let edit
+
+    isEditing(e => {
+        e && setTimeout(() =>{
+            edit.focus()
+        })
+    })
+
     return h('li',
         {
             className: activeClass()
@@ -77,11 +95,10 @@ export const todoItem = (item) => {
                 }
             )
         ),
-        h('input.edit',
+        edit = h('input.edit',
             {
                 value: value,
-                onkeyup: onkeyup,
-                autofocus: true
+                onkeyup: onkeyup
             }
         )
     )

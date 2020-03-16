@@ -32,11 +32,22 @@ export const app = () => {
 
     const [filter, dispatchFilter] = useReducer(filterReducer, initialFilter)
 
+    const [showFilter, setShowFilter] = useState(SHOW_ALL)
+
+    filter(filter => {
+        const { name = SHOW_ALL } = filter.find(({ selected }) => selected) || {}
+        setShowFilter(name) 
+    })
+
     // when accessing an observable value pass closing bracket '()'
     // but this does not apply in hyperscript, since hyperscript will
     // resolve the observable directly or using binding, transform, 
     // compute etc++
     const [todos, setTodos] = useState(state().todos)
+
+    todos(t => {
+        // console.log('change')
+    })
     
     const toggleAll = h('input.toggle-all',
         {
@@ -45,6 +56,7 @@ export const app = () => {
         }
     )
     
+    // bind the toggle all to a handler observable
     const handler = input(toggleAll, 'checked', 'change')
 
     // assigning function to an observable. This
@@ -54,16 +66,13 @@ export const app = () => {
     // observable all along ironically
     state(state => {
         setTodos(state.todos)
-        // bind the toggle all
         // if all todos is checked, toggle it
         handler(state.isChecked)
     })
 
-    const useTodos = () => {
+    const useTodos = (name, todos) => {
 
-        const { name = SHOW_ALL } = filter().find(({ selected }) => selected) || {}
-
-        const t = todos().filter(t => {
+        const t = todos.filter(t => {
             if (name === SHOW_ACTIVE) {
                 return !t.completed
             } else if (name === SHOW_COMPLETE) {
@@ -78,21 +87,22 @@ export const app = () => {
 
     return h('section.todoapp',
         header({ dispatch }),
-        transform(todos, t => t.length ? h('section.main',
+        transform(todos, todos => todos.length ? h('section.main',
             toggleAll,
             h('label ', { 
                 attrs: { for: 'toggle-all' } 
             }, 'Mark all as complete'),
-            transform(todos, () => todo({ todos: useTodos(todos), dispatch }))
+            transform(showFilter, show => todo({ todos: useTodos(show, todos), dispatch }))
         ): null),
-        transform(todos, t => todoFooter({
-            show: t.length,
-            count: state().count,
-            plural: state().plural,
-            clearToggle: state().clearToggle,
-            clearCompleted: () => dispatch({ action: 'clearComplete' }),
+        transform(state, ({ todos, count, plural, clearToggle }) => todoFooter({
+            show: todos.length,
+            count,
+            plural,
+            clearToggle,
+            showFilter,
             filter,
-            dispatchFilter
+            dispatchFilter,
+            clearCompleted: () => dispatch({ action: 'clearComplete' })
         })),
     )
 }

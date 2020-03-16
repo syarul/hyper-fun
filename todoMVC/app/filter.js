@@ -11,7 +11,9 @@ let initial = true
 
 export const filter = ({ filter, dispatchFilter }) => {
 
-    const updateUrl = () => {}
+    const updateUrl = e => {
+        dispatchFilter(e.target.hash)
+    }
 
     if(initial) {
         initial = false

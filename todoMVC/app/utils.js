@@ -12,6 +12,7 @@ export const uuid = () => Math.round(Math.random() * 1e12).toString(32)
 export const camelCase = s => s.charAt(0).toUpperCase() + s.slice(1)
 
 export const ENTER_KEY = 13
+export const ESC_KEY = 27
 export const SHOW_ALL = 'All'
 export const SHOW_ACTIVE = 'Active'
 export const SHOW_COMPLETE = 'Completed'
