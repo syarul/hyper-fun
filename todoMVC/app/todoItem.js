@@ -4,7 +4,7 @@ import { ENTER_KEY, ESC_KEY } from './utils'
 
 const useState = o
 
-export const todoItem = (item) => {
+export const todoItem = item => {
 
     const { todo, completed, editing, dispatch } = item
 
@@ -67,6 +67,7 @@ export const todoItem = (item) => {
 
     let edit
 
+    // need to wait for sometime
     isEditing(e => {
         e && setTimeout(() =>{
             edit.focus()

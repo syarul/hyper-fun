@@ -44,12 +44,8 @@ export const app = () => {
     // resolve the observable directly or using binding, transform, 
     // compute etc++
     const [todos, setTodos] = useState(state().todos)
-
-    todos(t => {
-        // console.log('change')
-    })
     
-    const toggleAll = h('input.toggle-all',
+    const toggleAll = h('input.toggle-all#toggle-all',
         {
             type: 'checkbox',
             onclick: () => dispatch({ action: 'completeAll' })
@@ -70,9 +66,8 @@ export const app = () => {
         handler(state.isChecked)
     })
 
-    const useTodos = (name, todos) => {
-
-        const t = todos.filter(t => {
+    const useTodos = (name, todos) =>
+        todos.filter(t => {
             if (name === SHOW_ACTIVE) {
                 return !t.completed
             } else if (name === SHOW_COMPLETE) {
@@ -81,9 +76,6 @@ export const app = () => {
                 return t
             }
         })
-
-        return t
-    }
 
     return h('section.todoapp',
         header({ dispatch }),
