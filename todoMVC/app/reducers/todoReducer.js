@@ -19,12 +19,12 @@ const processOutput = state => {
 }
 
 export const initialTodo = processOutput({
-  todos: (useStore && store(DATA_STORE)) || [ {
+  todos: (useStore && store(DATA_STORE)) || [ /*{
     id: "9ngehrp",
     todo: "awdx",
     completed: false,
     editing: false
-  }]
+  }*/]
 })
 
 export const todoReducer = (state, { action, todo }) => {

@@ -13,7 +13,6 @@ o.useHook(true)
 
 const {
     transform,
-    bind2,
     input
 } = o
 
@@ -39,27 +38,25 @@ export const app = () => {
     // compute etc++
     const [todos, setTodos] = useState(state().todos)
     
-
-    let __toggler = h('input.toggle-all#toggle-all',
+    const toggleAll = h('input.toggle-all',
         {
             type: 'checkbox',
-            // checked: transform(state, ({ isChecked }) => !isChecked),
             onclick: () => dispatch({ action: 'completeAll' })
         }
     )
-
-    let toggler = h('input', { type: 'checkbox' })
     
-    let togglerHandler = input(toggler, 'checked', 'change')
+    const handler = input(toggleAll, 'checked', 'change')
 
     // assigning function to an observable. This
     // pretty much how useEffect/useLayoutEffect
     // behave instead it attach directly to the
     // observable, and guess what it's anagram for
     // observable all along ironically
-    state(({ todos }) => {
-        setTodos(todos)
-        console.log(todos)
+    state(state => {
+        setTodos(state.todos)
+        // bind the toggle all
+        // if all todos is checked, toggle it
+        handler(state.isChecked)
     })
 
     const useTodos = () => {
@@ -79,39 +76,23 @@ export const app = () => {
         return t
     }
 
-    var _i = h('input', { type: 'checkbox' })
-    var _j = h('input', { type: 'checkbox' })
-    var i = o.input(_i, 'checked', 'change')
-    var j = o.input(_j, 'checked', 'change')
-
-    i(Math.random() < 0.5)
-
-    // o.bind2(o.not(i), j)
-
-    bind2(o.not(togglerHandler), i)
-
     return h('section.todoapp',
         header({ dispatch }),
-        h('section.main',
-            {
-                style: {
-                    display: transform(todos, t => t.length ? 'block' : 'none')
-                }
-            },
-            toggler,
+        transform(todos, t => t.length ? h('section.main',
+            toggleAll,
             h('label ', { 
                 attrs: { for: 'toggle-all' } 
             }, 'Mark all as complete'),
-            transform(todos, t => todo({ todos: useTodos(todos), dispatch }))
-        ),
-        transform(todos, t => t.length ? todoFooter({ 
+            transform(todos, () => todo({ todos: useTodos(todos), dispatch }))
+        ): null),
+        transform(todos, t => todoFooter({
+            show: t.length,
             count: state().count,
             plural: state().plural,
             clearToggle: state().clearToggle,
             clearCompleted: () => dispatch({ action: 'clearComplete' }),
             filter,
             dispatchFilter
-        }) : ''),
-        h('div', _i, _j)
+        })),
     )
 }

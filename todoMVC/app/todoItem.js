@@ -51,6 +51,10 @@ export const todoItem = (item) => {
         })
     }
 
+    const destroy = () => {
+        dispatch({ action: 'remove', todo: item })
+    }
+
     return h('li',
         {
             className: activeClass()
@@ -69,7 +73,7 @@ export const todoItem = (item) => {
             }, todo),
             h('button.destroy',
                 {
-                    onclick: () => { console.log('destroy') }
+                    onclick: destroy
                 }
             )
         ),

@@ -7,13 +7,13 @@
   "author": "syarul <hottincup@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "app": "^0.1.0",
     "hyperscript": "^2.0.2",
     "observable": "https://github.com/syarul/observable",
     "todomvc-app-css": "^2.3.0",
     "todomvc-common": "^1.0.5"
   },
   "scripts": {
-    "start": "cp todoMVC/learn.json dist/learn.json && parcel todoMVC/index.html"
+    "mv": "cp todoMVC/learn.json dist/learn.json",
+    "start": "parcel todoMVC/index.html"
   }
 }
