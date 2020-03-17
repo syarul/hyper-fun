@@ -27,8 +27,6 @@ const {
 const useReducer = o
 const useState   = o
 
-export const lifecycle = o()
-
 export const app = () => {
 
     const [state, dispatch] = useReducer(todoReducer, initialTodo)
@@ -41,12 +39,6 @@ export const app = () => {
 
     // observe when filter change / todos change
     const [run, setRun] = useState()
-
-    const [f] = lifecycle
-
-    run(() => {
-        f(true)
-    })
 
     showFilter(v =>{
         setRun(true)
@@ -62,22 +54,53 @@ export const app = () => {
     // resolve the observable directly or using binding, transform, 
     // compute etc++
     const [todos, setTodos] = useState(state().todos)
-    
+
     const toggleAll = h('input.toggle-all#toggle-all',
         {
             type: 'checkbox',
             onclick: () => dispatch({ action: 'completeAll' })
         }
     )
-    
+
     // bind the toggle all to a handler observable
     const handler = input(toggleAll, 'checked', 'change')
+
+    const useTodos = (name, todos) =>
+        todos.filter(t => {
+            if (name === SHOW_ACTIVE) {
+                return !t.completed
+            } else if (name === SHOW_COMPLETE) {
+                return t.completed
+            } else {
+                return t
+            }
+        })
     
     // observe the length of todos
     const len = signal(state().todos.length > 0)
 
+    let main, foo
+
     len(l => {
         console.log(`length has change ${l}`)
+        l ? main = h('section.main',
+            toggleAll,
+            h('label ', {
+                attrs: { for: 'toggle-all' }
+            }, 'Mark all as complete'),
+            // 'foo'
+            // transform(run, () =>{
+            //     let n = h('h4', 'foo')
+            //     if(!n.isEqualNode(foo)){
+            //         console.log('aw')
+            //         foo = n 
+            //     }
+            //     return foo
+            // })
+            // transform(run, () =>
+            //     todo({ todos: useTodos(showFilter(), todos()), dispatch })
+            // )
+        ) : null
     })
 
     // assigning function to an observable. This
@@ -95,41 +118,35 @@ export const app = () => {
         setRun(true)
     })
 
-    const useTodos = (name, todos) =>
-        todos.filter(t => {
-            if (name === SHOW_ACTIVE) {
-                return !t.completed
-            } else if (name === SHOW_COMPLETE) {
-                return t.completed
-            } else {
-                return t
-            }
-        })
 
     const frag = document.createDocumentFragment()
 
     const node = h('section.todoapp',
         header({ dispatch }),
-        transform(len, len => len ? h('section.main',
-            toggleAll,
-            h('label ', { 
-                attrs: { for: 'toggle-all' } 
-            }, 'Mark all as complete'),
-            transform(run, () =>
-                todo({ todos: useTodos(showFilter(), todos()), dispatch })
-            )
-        ): null),
+        // main
+        transform(len, len => {
+            console.log('render main')
+            return len ? h('section.main',
+                toggleAll,
+                h('label ', { 
+                    attrs: { for: 'toggle-all' } 
+                }, 'Mark all as complete'),
+                transform(run, () =>
+                    todo({ todos: useTodos(showFilter(), todos()), dispatch })
+                )
+            ): null
+        }),
 
-        transform(state, ({ todos, count, plural, clearToggle }) => todoFooter({
-            show: todos.length,
-            count,
-            plural,
-            clearToggle,
-            showFilter,
-            filter,
-            dispatchFilter,
-            clearCompleted: () => dispatch({ action: 'clearComplete' })
-        }))
+        // transform(state, ({ todos, count, plural, clearToggle }) => todoFooter({
+        //     show: todos.length,
+        //     count,
+        //     plural,
+        //     clearToggle,
+        //     showFilter,
+        //     filter,
+        //     dispatchFilter,
+        //     clearCompleted: () => dispatch({ action: 'clearComplete' })
+        // }))
     )
 
     const footer = h('footer.info',
@@ -143,9 +160,8 @@ export const app = () => {
     )
 
     // footer is static so don't bother diffing this
-    // root.appendChild(footer)
     frag.appendChild(node)
     frag.appendChild(footer)
-
-    return frag
+    
+    return [frag, run]
 }
