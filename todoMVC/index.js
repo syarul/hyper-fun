@@ -1,25 +1,10 @@
-import h from 'hyperscript'
-import patch from './morph'
-import { app } from './app/todoapp'
+import { app, state, filter } from './app/todoapp'
+import { render } from '../render'
 
-const root = document.getElementById('app')
-
-
-
-// currently just rerender everything which is not efficient
-// should go thorough diffing/patching on subsequent update
-const [node, run] = app()
-console.log(node.cloneNode(true))
-let cycle = run
-let init = false
-cycle(v => {
-    console.log('cycle') 
-    if(init){
-        h.cleanup()
-        const [node, run] = app()
-        cycle = run
-        patch(root, node)
-    }
-    init = true
-})
-patch(root, node)
+// render will do the efficient diffing 
+// between virtual node and the real DOM
+render(
+    document.getElementById('app'), // mount node
+    [state, filter],                // observable(s) to listen, pass as array if more than one
+    app                             // the target function hook
+)

@@ -1,51 +1,66 @@
 import h from 'hyperscript'
 import o from 'observable'
-import patch from '../todoMVC/morph'
-
-// o.useHook(true)
-
-const { transform, signal } = o
+import { render } from '../render'
 
 const root = document.getElementById('app')
 
 const useState = o
 
-// const [state, setState] = useState([0, 1, 2, 3, 5])
+useState.useHook(true)
 
-let state = useState([0, 1, 2, 3, 5])
+const [state, setState] = useState([])
 
-let m
+const app = state => {
 
-const renderState = state => {
-    return state.map((s, i) => h(`li#${i}`, s))
+    return h('div',
+        h('button', {
+            onclick: () => {
+                state.push(state.length)
+                if (state.length > 10) {
+                    state = []
+                }
+                setState(state)
+            }
+        }, 'pop'),
+        state.length ? h('ul', state.map((s, i) => h(`li#${i}`, s))) : null
+    )
 }
 
-state(state => {
-    if(!m) return
-    const newNode = renderState(state)
-    const f = document.createDocumentFragment()
-    if(Array.isArray(newNode)) {
-        Array.from(newNode, n => f.appendChild(n))
-    } else {
-        f.appendChild(newNode)
-    }
-    patch(m, f)
-})
+const [input, setInput] = useState('')
 
-const app = h('div',
-    h('button', {
-        onclick: e => {
-            let cur = state()
-            cur.pop()
-            if(cur.length === 0){
-                cur = [0, 1, 2, 3, 5]
+const app2 = (state, input) => {
+    return h('div',
+        h('input', {
+            value: input,
+            onkeyup: e => {
+                setInput(e.target.value)
+                if(e.which === 13){
+                    setState(state.concat({
+                        id: Math.round(Math.random()*1e17).toString(32),
+                        text: input
+                    }))
+                    setInput('')
+                }
             }
-            state(cur)
-        }
-    }, 'pop'),
-    m = h('ul', 
-        renderState(state())
+        }),
+        h('p', input),
+        state.length ? h('ul', state.map(s => 
+            h(`li#${s.id}`,
+                s.text,
+                h('button.destroy',
+                    {
+                        onclick: () => {
+                            const idx = state.findIndex(c => c.id === s.id)
+                            state.splice(idx, 1)
+                            setState(state)
+                        }
+                    },
+                'x')
+            )
+        )) : null
     )
-)
+}
 
-patch(root, app)
+// render(root, state, app)
+
+render(root, [state, input], app2)

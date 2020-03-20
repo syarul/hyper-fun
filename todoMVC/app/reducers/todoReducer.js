@@ -46,12 +46,9 @@ export const todoReducer = (state, { action, todo }) => {
     case 'edit':
     {
       const idx = state.todos.findIndex(t => t.id === todo.id)
-      const todos = Object.assign([], state.todos)
-      todos.splice(idx, 1, todo)
-      return processOutput({
-        ...state,
-        todos
-      })
+      const ntodo = Object.assign({}, todo)
+      state.todos.splice(idx, 1, ntodo)
+      return processOutput(state)
     }
     case 'remove':
     {

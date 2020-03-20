@@ -1,5 +1,6 @@
 import h from 'hyperscript'
 import o from 'observable'
+import { render } from '../../render'
 
 import { todoReducer, initialTodo } from './reducers/todoReducer'
 import { filterReducer, initialFilter } from './reducers/filterReducer'
@@ -12,9 +13,7 @@ import { SHOW_ALL, SHOW_ACTIVE, SHOW_COMPLETE } from './utils'
 o.useHook(true)
 
 const {
-    transform,
-    input,
-    signal
+    input
 } = o
 
 // for the sake of clarity purpose and
@@ -25,47 +24,46 @@ const {
 // value as the reducer aggregator, while the
 // the 2nd as the initial value for the reducer
 const useReducer = o
-const useState   = o
 
-export const app = () => {
+// non-scope observable declaration
+export const [state, dispatch] = useReducer(todoReducer, initialTodo)
 
-    const [state, dispatch] = useReducer(todoReducer, initialTodo)
+// non-scope observable declaration
+export const [filter, dispatchFilter] = useReducer(filterReducer, initialFilter)
 
-    const [filter, dispatchFilter] = useReducer(filterReducer, initialFilter)
+let handler
 
-    // signal observable does not get trigged
-    // when new value is the same as old value
-    const showFilter = signal(SHOW_ALL)
+state(state => 
+    // if all todos is checked, toggle it
+    handler && handler(state.isChecked)
+)
 
-    // observe when filter change / todos change
-    const [run, setRun] = useState()
+export const app = (state, filter) => {
 
-    showFilter(v =>{
-        setRun(true)
-    })
+    const {
+        todos,
+        plural,
+        count,
+        isChecked,
+        clearToggle,
+    } = state
 
-    filter(filter => {
-        const { name = SHOW_ALL } = filter.find(({ selected }) => selected) || {}
-        showFilter(name) 
-    })
+    const len = todos.length > 0
 
-    // when accessing an observable value pass closing bracket '()'
-    // but this does not apply in hyperscript, since hyperscript will
-    // resolve the observable directly or using binding, transform, 
-    // compute etc++
-    const [todos, setTodos] = useState(state().todos)
+    const { name = SHOW_ALL } = filter.find(({ selected }) => selected) || {}
 
     const toggleAll = h('input.toggle-all#toggle-all',
         {
             type: 'checkbox',
+            checked: isChecked,
             onclick: () => dispatch({ action: 'completeAll' })
         }
     )
 
     // bind the toggle all to a handler observable
-    const handler = input(toggleAll, 'checked', 'change')
+    handler = input(toggleAll, 'checked', 'change')
 
-    const useTodos = (name, todos) =>
+    const useTodos = name =>
         todos.filter(t => {
             if (name === SHOW_ACTIVE) {
                 return !t.completed
@@ -73,80 +71,29 @@ export const app = () => {
                 return t.completed
             } else {
                 return t
-            }
+            }   
         })
-    
-    // observe the length of todos
-    const len = signal(state().todos.length > 0)
-
-    let main, foo
-
-    len(l => {
-        console.log(`length has change ${l}`)
-        l ? main = h('section.main',
-            toggleAll,
-            h('label ', {
-                attrs: { for: 'toggle-all' }
-            }, 'Mark all as complete'),
-            // 'foo'
-            // transform(run, () =>{
-            //     let n = h('h4', 'foo')
-            //     if(!n.isEqualNode(foo)){
-            //         console.log('aw')
-            //         foo = n 
-            //     }
-            //     return foo
-            // })
-            // transform(run, () =>
-            //     todo({ todos: useTodos(showFilter(), todos()), dispatch })
-            // )
-        ) : null
-    })
-
-    // assigning function to an observable. This
-    // pretty much how useEffect/useLayoutEffect
-    // behave instead it attach directly to the
-    // observable, and guess what it's anagram for
-    // observable all along ironically
-    state(state => {
-        setTodos(state.todos)
-        // if all todos is checked, toggle it
-        handler(state.isChecked)
-
-        len(state.todos.length > 0)
-
-        setRun(true)
-    })
-
 
     const frag = document.createDocumentFragment()
 
     const node = h('section.todoapp',
         header({ dispatch }),
-        // main
-        transform(len, len => {
-            console.log('render main')
-            return len ? h('section.main',
+        len ? h('section.main',
                 toggleAll,
                 h('label ', { 
                     attrs: { for: 'toggle-all' } 
                 }, 'Mark all as complete'),
-                transform(run, () =>
-                    todo({ todos: useTodos(showFilter(), todos()), dispatch })
-                )
-            ): null
-        }),
-
-        // transform(state, ({ todos, count, plural, clearToggle }) => todoFooter({
-        //     show: todos.length,
-        //     count,
-        //     plural,
-        //     clearToggle,
-        //     showFilter,
-        //     filter,
-        //     dispatchFilter,
-        //     clearCompleted: () => dispatch({ action: 'clearComplete' })
-        // }))
+            todo({ todos: useTodos(name), dispatch })
+            ): null,
+        len ? todoFooter({
+            show: todos.length,
+            count,
+            plural,
+            clearToggle,
+            filter,
+            dispatchFilter,
+            clearCompleted: () => dispatch({ action: 'clearComplete' })
+        }) : null
     )
 
     const footer = h('footer.info',
@@ -159,9 +106,8 @@ export const app = () => {
         )
     )
 
-    // footer is static so don't bother diffing this
     frag.appendChild(node)
     frag.appendChild(footer)
     
-    return [frag, run]
+    return frag
 }

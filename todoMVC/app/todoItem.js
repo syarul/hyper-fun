@@ -2,22 +2,21 @@ import h from 'hyperscript'
 import o from 'observable'
 import { ENTER_KEY, ESC_KEY } from './utils'
 
-const useState = o
+const {
+    input
+} = o
 
 export const todoItem = item => {
 
     const { todo, completed, editing, dispatch } = item
 
-    const [value, setValue] = useState(todo)
-
     const onkeyup = e => {
-        setValue(e.target.value.trim())
         if (e.keyCode === ENTER_KEY) {
             dispatch({
                 action: 'edit',
                 todo: {
                     ...item,
-                    todo: value(),
+                    todo: e.target.value.trim(),
                     editing: false
                 }
             })
@@ -32,7 +31,7 @@ export const todoItem = item => {
         }
     }
 
-    const toggle = () => {
+    const toggle = () =>
         dispatch({
             action: 'edit',
             todo: {
@@ -40,7 +39,6 @@ export const todoItem = item => {
                 completed: !completed
             }
         })
-    }
 
     const activeClass = () => {
         let cl = []
@@ -49,7 +47,7 @@ export const todoItem = item => {
         return cl.join(' ')
     }
 
-    const editTodo = () => {
+    const editTodo = () =>
         dispatch({
             action: 'edit',
             todo: {
@@ -57,22 +55,9 @@ export const todoItem = item => {
                 editing: true
             }
         })
-    }
 
-    const destroy = () => {
+    const destroy = () =>
         dispatch({ action: 'remove', todo: item })
-    }
-
-    const [isEditing] = useState(editing)
-
-    let edit
-
-    // need to wait for sometime
-    isEditing(e => {
-        e && setTimeout(() =>{
-            edit.focus()
-        })
-    })
 
     return h('li',
         {
@@ -88,7 +73,7 @@ export const todoItem = item => {
             ),
             h('label', {
                 ondblclick: editTodo,
-                value
+                todo
             }, todo),
             h('button.destroy',
                 {
@@ -96,10 +81,11 @@ export const todoItem = item => {
                 }
             )
         ),
-        edit = h('input.edit',
+        h('input.edit',
             {
-                value: value,
-                onkeyup: onkeyup
+                value: todo,
+                onkeyup: onkeyup,
+                autofocus: true
             }
         )
     )

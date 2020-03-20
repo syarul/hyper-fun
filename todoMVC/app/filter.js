@@ -17,13 +17,13 @@ export const filter = ({ filter, dispatchFilter }) => {
 
     if(initial) {
         initial = false
-        if (!filter().find(({ href }) => href === window.location.hash)) {
+        if (!filter.find(({ href }) => href === window.location.hash)) {
             window.history.pushState({}, null, '#/all')
         }
     }
 
     return h('ul.filters', 
-        Array.from(filter(), ({ name, href, selected }) => {
+        Array.from(filter, ({ name, href, selected }) => {
             return h('li',
                 {
                     id: name,

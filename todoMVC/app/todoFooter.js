@@ -6,24 +6,19 @@ const {
     transform
 } = o
 
-export const todoFooter = ({ show, count, plural, clearToggle, showFilter, filter, dispatchFilter, clearCompleted }) => {
+export const todoFooter = ({ show, count, plural, clearToggle, filter, dispatchFilter, clearCompleted }) => {
 
     return h('footer.footer',
-        {
-            style: {
-                display: show && 'block' || 'none' // without diffing we can't remove this node
-            }
-        },
         h('span.todo-count',
             h('strong', count),
             ` item${plural} left`
         ),
-        transform(showFilter, () => filterc({ filter, dispatchFilter })),
+        filterc({ filter, dispatchFilter }),
         clearToggle ? h('button.clear-completed',
            {
                onclick: clearCompleted,
            },
            'Clear Complete'
-        ) : ''
+        ) : null
     )
 }
