@@ -1,6 +1,6 @@
 {
   "name": "hyper-fun",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Fun way to build app with hyperscript and observable",
   "main": "index.js",
   "repository": "https://github.com/syarul/hyper-fun",
@@ -14,9 +14,11 @@
     "mv": "cp todoMVC/learn.json dist/learn.json",
     "todo": "parcel todoMVC/index.html",
     "vdom": "parcel vdom/index.html",
-    "build": "parcel build index.js"
+    "build": "parcel build index.js",
+    "gh-todo": "node gh.js"
   },
   "devDependencies": {
+    "gh-pages": "^2.2.0",
     "todomvc-app-css": "^2.3.0",
     "todomvc-common": "^1.0.5"
   }

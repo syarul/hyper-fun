@@ -1,7 +1,9 @@
 # hyper-fun
 fun way to build app with hyperscript and observable
 
-[![npm package](https://img.shields.io/badge/npm-0.0.1-blue.svg)](https://www.npmjs.com/package/hyper-fun) [![browser build](https://img.shields.io/badge/unpkg-0.0.1-ff69b4.svg)](https://unpkg.com/hyper-fun@0.0.1/hyper-fun.min.js)
+[![npm package](https://img.shields.io/badge/npm-0.0.2-blue.svg)](https://www.npmjs.com/package/hyper-fun) [![browser build](https://img.shields.io/badge/unpkg-0.0.2-ff69b4.svg)](https://unpkg.com/hyper-fun@0.0.2/hyper-fun.min.js)
+
+[live todoMVC sample](https://syarul.github.io/hyper-fun)
 
 ## What's this
 With [hyperscript](https://github.com/hyperhype/hyperscript) and [observable](https://github.com/dominictarr/observable) as core + render/diffing, we get a decent view layer for building web app. No compiler is needed. If you itch for using html templating instead of hyperscript you can substitute with [htm](https://github.com/developit/htm).
